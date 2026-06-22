@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wielki Test Mno?enia do 100</title>
+    <title>Wielki Test Mnożenia do 100</title>
     <!-- Tailwind CSS do stylizacji -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Czcionka Nunito dla przyjaznego, dzieci?cego wygl?du -->
+    <!-- Czcionka Nunito dla przyjaznego, dziecięcego wyglądu -->
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800;900&display=swap" rel="stylesheet">
     
     <style>
@@ -51,21 +51,21 @@
             <div class="w-24 h-24 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-6">
                 <i data-lucide="trophy" class="w-12 h-12 text-indigo-600"></i>
             </div>
-            <h1 class="text-4xl sm:text-5xl font-black text-slate-800 mb-4 tracking-tight">Wielki Test Mno?enia do 100!</h1>
+            <h1 class="text-4xl sm:text-5xl font-black text-slate-800 mb-4 tracking-tight">Wielki Test Mnożenia do 100!</h1>
             <p class="text-slate-600 mb-8 text-lg font-medium">
-                Przed Tob? zestaw <strong class="text-indigo-600">50 unikalnych, losowych pyta?</strong>. 
-                Gotowy, by zosta? Mistrzem Matematyki?
+                Przed Tobą zestaw <strong class="text-indigo-600">50 unikalnych, losowych pytań</strong>. 
+                Gotowy, by zostać Mistrzem Matematyki?
             </p>
             <button onclick="startQuiz()" class="w-full py-5 px-6 bg-indigo-600 hover:bg-indigo-700 text-white text-2xl font-black rounded-2xl shadow-lg transform transition active:scale-95 flex items-center justify-center gap-3">
                 <i data-lucide="play" class="w-7 h-7 fill-current"></i>
-                Rozpocznij Gr?
+                Rozpocznij Grę
             </button>
         </div>
 
         <!-- ================= EKRAN QUIZU ================= -->
         <div id="screen-quiz" class="hidden flex-col w-full">
             
-            <!-- Header i pasek post?pu -->
+            <!-- Header i pasek postępu -->
             <div class="flex items-center justify-between mb-8">
                 <div class="flex items-center gap-4 flex-1">
                     <span id="progress-text" class="text-sm font-bold text-indigo-700 bg-indigo-100 px-4 py-2 rounded-full shadow-sm whitespace-nowrap">
@@ -88,7 +88,7 @@
                 </h2>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="options-container">
-                    <!-- Przyciski odpowiedzi (uzupe?niane przez JS) -->
+                    <!-- Przyciski odpowiedzi (uzupełniane przez JS) -->
                     <button class="option-btn py-6 px-6 text-3xl font-black rounded-2xl border-4 border-slate-200 bg-white text-slate-700 hover:border-indigo-400 hover:bg-indigo-50 hover:shadow-md flex justify-center items-center gap-3" onclick="handleAnswer(0)">
                         <span id="opt-0">A</span>
                         <i id="icon-opt-0" class="w-8 h-8 hidden"></i>
@@ -112,15 +112,15 @@
             <div id="verdict-section" class="hidden animate-fade-in-up mt-6">
                 <div id="verdict-box" class="rounded-2xl p-6 mb-6 border-l-8 shadow-sm">
                     <h3 id="verdict-title" class="text-xl font-black mb-2 flex items-center gap-3">
-                        <!-- Tytu? werdyktu -->
+                        <!-- Tytuł werdyktu -->
                     </h3>
                     <p id="verdict-rationale" class="font-semibold text-lg opacity-90">
-                        <!-- Wyja?nienie -->
+                        <!-- Wyjaśnienie -->
                     </p>
                 </div>
                 
                 <button id="next-btn" onclick="handleNextQuestion()" class="w-full py-5 bg-slate-800 hover:bg-indigo-600 text-white font-black text-xl rounded-2xl shadow-xl flex items-center justify-center gap-3 transition-colors transform active:scale-95">
-                    <span id="next-btn-text">Nast?pne Pytanie</span>
+                    <span id="next-btn-text">Następne Pytanie</span>
                     <i data-lucide="arrow-right" class="w-6 h-6"></i>
                 </button>
             </div>
@@ -139,7 +139,7 @@
 
         </div>
 
-        <!-- ================= EKRAN KO?COWY ================= -->
+        <!-- ================= EKRAN KOŃCOWY ================= -->
         <div id="screen-end" class="hidden bg-white rounded-3xl shadow-xl overflow-hidden text-center p-8 border-4 border-indigo-100">
             <div class="flex justify-center gap-2 mb-6" id="stars-container">
                 <!-- Gwiazdki generowane przez JS -->
@@ -170,7 +170,7 @@
         let isAnswered = false;
         let selectedOption = null;
 
-        // --- GENERATOR PYTA? ---
+        // --- GENERATOR PYTAŃ ---
         function generateQuizQuestions(count) {
             const allCombinations = [];
             for (let a = 0; a <= 10; a++) {
@@ -191,7 +191,7 @@
                 const correctResult = a * b;
                 const wrongOptions = new Set();
 
-                // Inteligentne b??dne odpowiedzi
+                // Inteligentne błędne odpowiedzi
                 if ((a + 1) * b !== correctResult) wrongOptions.add((a + 1) * b);
                 if (a * (b + 1) !== correctResult) wrongOptions.add(a * (b + 1));
                 if (a > 0 && (a - 1) * b !== correctResult) wrongOptions.add((a - 1) * b);
@@ -200,7 +200,7 @@
 
                 let wrongArr = Array.from(wrongOptions).sort(() => 0.5 - Math.random()).slice(0, 3);
 
-                // Uzupe?nienie losowymi warto?ciami je?li brakuje opcji
+                // Uzupełnienie losowymi wartościami jeśli brakuje opcji
                 while (wrongArr.length < 3) {
                     const randomOffset = Math.floor(Math.random() * 11) - 5;
                     const randomFake = Math.max(0, correctResult + randomOffset);
@@ -215,19 +215,19 @@
 
                 // Dynamiczne wskazówki
                 let dynamicHint = "";
-                if (a === 0 || b === 0) dynamicHint = "Pami?taj, jakakolwiek liczba pomno?ona przez zero staje si? zerem!";
-                else if (a === 1 || b === 1) dynamicHint = "Mno?enie przez 1 dzia?a jak lustro - liczba zostaje taka sama.";
+                if (a === 0 || b === 0) dynamicHint = "Pamiętaj, jakakolwiek liczba pomnożona przez zero staje się zerem!";
+                else if (a === 1 || b === 1) dynamicHint = "Mnożenie przez 1 działa jak lustro - liczba zostaje taka sama.";
                 else if (a === 2 || b === 2) dynamicHint = `To po prostu podwojenie! Dodaj do siebie ${a === 2 ? b : a} + ${a === 2 ? b : a}.`;
-                else if (a === 5 || b === 5) dynamicHint = "Skacz co pi??! Wyobra? sobie minuty na tarczy zegara.";
-                else if (a === 9) dynamicHint = `Dla dziewi?tek: wynik to o ${b} mniej ni? 10 × ${b} (czyli ${10 * b}).`;
-                else if (b === 9) dynamicHint = `Dla dziewi?tek: wynik to o ${a} mniej ni? 10 × ${a} (czyli ${10 * a}).`;
-                else if (a === 10 || b === 10) dynamicHint = "Mno?enie przez 10 jest proste - po prostu dopisz zero na ko?cu mniejszej liczby!";
-                else dynamicHint = `Wyobra? sobie ${a} grupy. W ka?dej z nich jest dok?adnie ${b} elementów. Ile ich jest razem?`;
+                else if (a === 5 || b === 5) dynamicHint = "Skacz co pięć! Wyobraź sobie minuty na tarczy zegara.";
+                else if (a === 9) dynamicHint = `Dla dziewiątek: wynik to o ${b} mniej niż 10 × ${b} (czyli ${10 * b}).`;
+                else if (b === 9) dynamicHint = `Dla dziewiątek: wynik to o ${a} mniej niż 10 × ${a} (czyli ${10 * a}).`;
+                else if (a === 10 || b === 10) dynamicHint = "Mnożenie przez 10 jest proste - po prostu dopisz zero na końcu mniejszej liczby!";
+                else dynamicHint = `Wyobraź sobie ${a} grupy. W każdej z nich jest dokładnie ${b} elementów. Ile ich jest razem?`;
 
                 const questionTextVariants = [
                     `Ile to jest ${a} × ${b}?`,
                     `Oblicz: ${a} × ${b} = ?`,
-                    `Rozwi?? dzia?anie: ${a} × ${b}`
+                    `Rozwiąż działanie: ${a} × ${b}`
                 ];
                 const qText = questionTextVariants[Math.floor(Math.random() * questionTextVariants.length)];
 
@@ -235,7 +235,7 @@
                     question: qText,
                     options: finalOptions.map(String),
                     correctIndex: correctIndex,
-                    rationale: `Poprawny wynik dzia?ania ${a} × ${b} to ${correctResult}.`,
+                    rationale: `Poprawny wynik działania ${a} × ${b} to ${correctResult}.`,
                     hint: dynamicHint
                 };
             });
@@ -247,7 +247,7 @@
             document.getElementById('screen-quiz').classList.add('hidden');
             document.getElementById('screen-end').classList.add('hidden');
             
-            // Flex dla ekranu quizu (zamiast block) dla lepszego uk?adu
+            // Flex dla ekranu quizu (zamiast block) dla lepszego układu
             if (screenId === 'screen-quiz') {
                 document.getElementById(screenId).classList.remove('hidden');
                 document.getElementById(screenId).style.display = 'flex';
@@ -295,8 +295,8 @@
             document.getElementById('hint-btn').classList.remove('hidden');
             document.getElementById('hint-text-box').classList.add('hidden');
 
-            // Aktualizacja napisu na przycisku "Nast?pne"
-            document.getElementById('next-btn-text').textContent = currentQIndex < TOTAL_QUESTIONS - 1 ? 'Nast?pne Pytanie' : 'Zako?cz Quiz';
+            // Aktualizacja napisu na przycisku "Następne"
+            document.getElementById('next-btn-text').textContent = currentQIndex < TOTAL_QUESTIONS - 1 ? 'Następne Pytanie' : 'Zakończ Quiz';
             
             lucide.createIcons();
         }
@@ -340,7 +340,7 @@
             
             if (selectedOption === q.correctIndex) {
                 verdictBox.className = "rounded-2xl p-6 mb-6 border-l-8 shadow-sm bg-emerald-50 border-emerald-500 text-emerald-800";
-                verdictTitle.innerHTML = '<i data-lucide="check-circle-2" class="w-6 h-6"></i> Wspaniale! Dok?adnie tak!';
+                verdictTitle.innerHTML = '<i data-lucide="check-circle-2" class="w-6 h-6"></i> Wspaniale! Dokładnie tak!';
             } else {
                 verdictBox.className = "rounded-2xl p-6 mb-6 border-l-8 shadow-sm bg-rose-50 border-rose-500 text-rose-800";
                 verdictTitle.innerHTML = '<i data-lucide="x-circle" class="w-6 h-6"></i> Niestety, to nie to.';
@@ -372,10 +372,10 @@
             
             const percentage = Math.round((score / TOTAL_QUESTIONS) * 100);
             let message = "";
-            if (percentage === 100) message = "Genialnie! Jeste? mistrzem tabliczki mno?enia! Czysta perfekcja!";
-            else if (percentage >= 80) message = "Wspania?y wynik! ?wietnie opanowa?e? ten materia?.";
+            if (percentage === 100) message = "Genialnie! Jesteś mistrzem tabliczki mnożenia! Czysta perfekcja!";
+            else if (percentage >= 80) message = "Wspaniały wynik! Świetnie opanowałeś ten materiał.";
             else if (percentage >= 50) message = "Dobra robota! Trening przynosi efekty. Oby tak dalej!";
-            else message = "Trening czyni mistrza. Spróbuj rozwi?za? losowy quiz jeszcze raz!";
+            else message = "Trening czyni mistrza. Spróbuj rozwiązać losowy quiz jeszcze raz!";
             
             document.getElementById('final-message').textContent = message;
 
