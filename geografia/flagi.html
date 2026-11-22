@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flagi państw świata</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800;900&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Nunito', sans-serif; }
+        .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        .animate-fade-in-up { animation: fadeInUp 0.5s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .option-btn { transition: all 0.2s ease-in-out; }
+        .option-btn:active:not(:disabled) { transform: scale(0.95); }
+        .flag-img { transition: opacity .2s ease; }
+    </style>
+</head>
+<body class="min-h-screen bg-slate-50 text-slate-800 flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8">
+
+    <div id="app-container" class="w-full max-w-2xl mx-auto">
+
+        <a href="./" class="inline-flex items-center gap-2 mb-4 text-slate-500 hover:text-sky-600 font-bold transition-colors">
+            <i data-lucide="arrow-left" class="w-5 h-5"></i>
+            Geografia
+        </a>
+
+        <!-- ================= EKRAN STARTOWY ================= -->
+        <div id="screen-start" class="bg-white rounded-3xl shadow-xl overflow-hidden text-center p-6 sm:p-8 border-4 border-sky-100 relative">
+            <div class="absolute top-4 right-4 text-amber-400">
+                <i data-lucide="sparkles" class="w-8 h-8"></i>
+            </div>
+            <div class="w-20 h-20 bg-sky-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="flag" class="w-10 h-10 text-sky-600"></i>
+            </div>
+            <h1 class="text-3xl sm:text-4xl font-black text-slate-800 mb-3 tracking-tight">Flagi państw świata</h1>
+            <p class="text-slate-600 mb-2 text-lg font-medium">
+                Zobaczysz flagę – zgadnij, do którego państwa należy!
+            </p>
+            <p class="text-slate-500 mb-6 text-sm font-semibold">
+                W grze są flagi <strong id="total-count">wszystkich</strong> państw świata: 193 członków ONZ oraz Watykanu, Palestyny i Kosowa.
+            </p>
+
+            <p class="text-slate-700 mb-4 font-black text-lg">Wybierz, co chcesz ćwiczyć:</p>
+            <div id="modes-container" class="flex flex-col gap-3"></div>
+        </div>
+
+        <!-- ================= EKRAN QUIZU ================= -->
+        <div id="screen-quiz" class="hidden flex-col w-full">
+
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center gap-3 flex-1">
+                    <span id="progress-text" class="text-sm font-bold text-sky-700 bg-sky-100 px-4 py-2 rounded-full shadow-sm whitespace-nowrap">1 z 20</span>
+                    <div class="h-4 flex-1 bg-slate-200 rounded-full overflow-hidden shadow-inner relative">
+                        <div id="progress-bar" class="h-full bg-gradient-to-r from-sky-400 to-sky-600 transition-all duration-300 ease-out" style="width: 0%;"></div>
+                    </div>
+                    <span class="text-sm font-bold text-emerald-700 bg-emerald-100 px-3 py-2 rounded-full shadow-sm whitespace-nowrap flex items-center gap-1" title="Poprawne odpowiedzi">
+                        <i data-lucide="check" class="w-4 h-4"></i><span id="score-live">0</span>
+                    </span>
+                </div>
+                <button onclick="quitQuiz()" class="ml-3 p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors flex items-center gap-2 text-sm font-bold" title="Przerwij i wróć do wyboru trybu">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                    <span class="hidden sm:inline">Przerwij</span>
+                </button>
+            </div>
+
+            <!-- Karta Pytania -->
+            <div class="bg-white rounded-3xl shadow-xl p-6 sm:p-10 mb-6 border-b-8 border-slate-200">
+                <div class="text-center mb-2">
+                    <span id="mode-badge" class="inline-block text-xs font-black uppercase tracking-wider px-3 py-1 rounded-full bg-sky-100 text-sky-700"></span>
+                </div>
+                <h2 class="text-xl sm:text-2xl font-black text-slate-800 mb-6 text-center leading-snug">Do jakiego państwa należy ta flaga?</h2>
+
+                <div class="h-40 sm:h-52 flex items-center justify-center mb-8 relative">
+                    <img id="flag-img" alt="Flaga do rozpoznania" class="flag-img max-h-full max-w-full object-contain rounded-lg shadow-md ring-1 ring-slate-200 opacity-0">
+                    <div id="flag-error" class="hidden absolute inset-0 flex flex-col items-center justify-center gap-2 text-slate-500 font-bold bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200 p-4">
+                        <i data-lucide="wifi-off" class="w-8 h-8"></i>
+                        Nie udało się wczytać flagi. Sprawdź połączenie z internetem.
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4" id="options-container">
+                    <button class="option-btn" onclick="handleAnswer(0)"><span id="opt-0">A</span><i id="icon-opt-0" class="hidden"></i></button>
+                    <button class="option-btn" onclick="handleAnswer(1)"><span id="opt-1">B</span><i id="icon-opt-1" class="hidden"></i></button>
+                    <button class="option-btn" onclick="handleAnswer(2)"><span id="opt-2">C</span><i id="icon-opt-2" class="hidden"></i></button>
+                    <button class="option-btn" onclick="handleAnswer(3)"><span id="opt-3">D</span><i id="icon-opt-3" class="hidden"></i></button>
+                </div>
+            </div>
+
+            <!-- Werdykt -->
+            <div id="verdict-section" class="hidden animate-fade-in-up mt-6">
+                <div id="verdict-box" class="rounded-2xl p-6 mb-6 border-l-8 shadow-sm">
+                    <h3 id="verdict-title" class="text-xl font-black mb-2 flex items-center gap-3"></h3>
+                    <p id="verdict-rationale" class="font-semibold text-lg opacity-90"></p>
+                    <p id="verdict-similar" class="hidden font-semibold text-base mt-2 opacity-90"></p>
+                </div>
+                <button id="next-btn" onclick="handleNextQuestion()" class="w-full py-5 bg-slate-800 hover:bg-sky-600 text-white font-black text-xl rounded-2xl shadow-xl flex items-center justify-center gap-3 transition-colors transform active:scale-95">
+                    <span id="next-btn-text">Następne Pytanie</span>
+                    <i data-lucide="arrow-right" class="w-6 h-6"></i>
+                </button>
+            </div>
+
+            <!-- Wskazówki -->
+            <div id="hint-section" class="text-center mt-6 min-h-[64px]">
+                <button id="hint-btn" onclick="showHint()" class="inline-flex items-center gap-2 text-slate-500 font-bold hover:text-sky-600 bg-white hover:bg-sky-50 px-6 py-3 rounded-full shadow-sm transition-all border border-slate-200">
+                    <i data-lucide="lightbulb" class="w-5 h-5 text-amber-500"></i>
+                    Potrzebujesz podpowiedzi?
+                </button>
+                <div id="hint-text-box" class="hidden inline-block bg-amber-50 text-amber-900 px-6 py-4 rounded-2xl border-2 border-amber-200 animate-fade-in text-base shadow-sm">
+                    <span class="font-black text-amber-600 mr-2 uppercase tracking-wide">Wskazówka:</span>
+                    <span id="hint-text" class="font-medium"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= EKRAN KOŃCOWY ================= -->
+        <div id="screen-end" class="hidden bg-white rounded-3xl shadow-xl overflow-hidden text-center p-6 sm:p-8 border-4 border-sky-100">
+            <div class="flex justify-center gap-2 mb-6" id="stars-container"></div>
+            <h2 class="text-3xl font-bold text-slate-800 mb-2">Koniec Wyzwania!</h2>
+            <p id="end-mode" class="text-slate-500 font-bold"></p>
+            <div class="text-7xl font-black text-sky-600 mb-4 mt-4">
+                <span id="final-score">0</span> <span class="text-3xl text-slate-400">/ <span id="final-total">0</span></span>
+            </div>
+            <p id="final-message" class="text-xl text-slate-600 mb-8 font-bold"></p>
+
+            <div id="mistakes-section" class="hidden text-left mb-8">
+                <h3 class="font-black text-xl mb-4 flex items-center gap-2 justify-center">
+                    <i data-lucide="book-open" class="w-6 h-6 text-sky-500"></i>
+                    Flagi do powtórki
+                </h3>
+                <div id="mistakes-list" class="grid grid-cols-2 sm:grid-cols-3 gap-3"></div>
+            </div>
+
+            <div class="flex flex-col gap-3">
+                <button id="retry-btn" onclick="startRetry()" class="hidden w-full py-5 px-6 bg-amber-500 hover:bg-amber-600 text-white text-xl font-bold rounded-2xl shadow-lg transform transition active:scale-95 flex items-center justify-center gap-3">
+                    <i data-lucide="repeat" class="w-6 h-6"></i>
+                    <span id="retry-btn-text">Powtórz błędne flagi</span>
+                </button>
+                <button onclick="replay()" class="w-full py-5 px-6 bg-emerald-500 hover:bg-emerald-600 text-white text-xl font-bold rounded-2xl shadow-lg transform transition active:scale-95 flex items-center justify-center gap-3">
+                    <i data-lucide="rotate-ccw" class="w-6 h-6"></i>
+                    Zagraj Ponownie
+                </button>
+                <button onclick="showScreen('screen-start')" class="w-full py-4 px-6 bg-white hover:bg-slate-50 text-slate-600 text-lg font-bold rounded-2xl border-2 border-slate-200 transform transition active:scale-95 flex items-center justify-center gap-3">
+                    <i data-lucide="layout-grid" class="w-5 h-5"></i>
+                    Wybierz inny tryb
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ---------- DANE: PAŃSTWA ŚWIATA ----------
+        // [kod ISO 3166-1 (do adresu flagi), nazwa, stolica]. Stolica null = sporna, nie podajemy.
+        const CONTINENTS = {
+            eu: { name: 'Europa',              loc: 'w Europie',              btn: 'bg-blue-500 hover:bg-blue-600' },
+            as: { name: 'Azja',                loc: 'w Azji',                 btn: 'bg-amber-500 hover:bg-amber-600' },
+            af: { name: 'Afryka',              loc: 'w Afryce',               btn: 'bg-slate-700 hover:bg-slate-800' },
+            na: { name: 'Ameryka Północna',    loc: 'w Ameryce Północnej',    btn: 'bg-rose-500 hover:bg-rose-600' },
+            sa: { name: 'Ameryka Południowa',  loc: 'w Ameryce Południowej',  btn: 'bg-orange-500 hover:bg-orange-600' },
+            oc: { name: 'Australia i Oceania', loc: 'w Australii i Oceanii',  btn: 'bg-emerald-500 hover:bg-emerald-600' }
+        };
+
+        const DATA = {
+            eu: [
+                ['al', 'Albania', 'Tirana'], ['ad', 'Andora', 'Andorra la Vella'], ['at', 'Austria', 'Wiedeń'],
+                ['be', 'Belgia', 'Bruksela'], ['by', 'Białoruś', 'Mińsk'], ['ba', 'Bośnia i Hercegowina', 'Sarajewo'],
+                ['bg', 'Bułgaria', 'Sofia'], ['hr', 'Chorwacja', 'Zagrzeb'], ['cy', 'Cypr', 'Nikozja'],
+                ['me', 'Czarnogóra', 'Podgorica'], ['cz', 'Czechy', 'Praga'], ['dk', 'Dania', 'Kopenhaga'],
+                ['ee', 'Estonia', 'Tallinn'], ['fi', 'Finlandia', 'Helsinki'], ['fr', 'Francja', 'Paryż'],
+                ['gr', 'Grecja', 'Ateny'], ['es', 'Hiszpania', 'Madryt'], ['nl', 'Holandia', 'Amsterdam'],
+                ['ie', 'Irlandia', 'Dublin'], ['is', 'Islandia', 'Reykjavík'], ['xk', 'Kosowo', 'Prisztina'],
+                ['li', 'Liechtenstein', 'Vaduz'], ['lt', 'Litwa', 'Wilno'], ['lu', 'Luksemburg', 'Luksemburg'],
+                ['lv', 'Łotwa', 'Ryga'], ['mk', 'Macedonia Północna', 'Skopje'], ['mt', 'Malta', 'Valletta'],
+                ['md', 'Mołdawia', 'Kiszyniów'], ['mc', 'Monako', 'Monako'], ['de', 'Niemcy', 'Berlin'],
+                ['no', 'Norwegia', 'Oslo'], ['pl', 'Polska', 'Warszawa'], ['pt', 'Portugalia', 'Lizbona'],
+                ['ru', 'Rosja', 'Moskwa'], ['ro', 'Rumunia', 'Bukareszt'], ['sm', 'San Marino', 'San Marino'],
+                ['rs', 'Serbia', 'Belgrad'], ['sk', 'Słowacja', 'Bratysława'], ['si', 'Słowenia', 'Lublana'],
+                ['ch', 'Szwajcaria', 'Berno'], ['se', 'Szwecja', 'Sztokholm'], ['ua', 'Ukraina', 'Kijów'],
+                ['va', 'Watykan', 'Watykan'], ['hu', 'Węgry', 'Budapeszt'], ['gb', 'Wielka Brytania', 'Londyn'],
+                ['it', 'Włochy', 'Rzym']
+            ],
+            as: [
+                ['af', 'Afganistan', 'Kabul'], ['sa', 'Arabia Saudyjska', 'Rijad'], ['am', 'Armenia', 'Erywań'],
+                ['az', 'Azerbejdżan', 'Baku'], ['bh', 'Bahrajn', 'Manama'], ['bd', 'Bangladesz', 'Dhaka'],
+                ['bt', 'Bhutan', 'Thimphu'], ['bn', 'Brunei', 'Bandar Seri Begawan'], ['cn', 'Chiny', 'Pekin'],
+                ['ph', 'Filipiny', 'Manila'], ['ge', 'Gruzja', 'Tbilisi'], ['in', 'Indie', 'Nowe Delhi'],
+                ['id', 'Indonezja', 'Dżakarta'], ['iq', 'Irak', 'Bagdad'], ['ir', 'Iran', 'Teheran'],
+                ['il', 'Izrael', null], ['jp', 'Japonia', 'Tokio'], ['ye', 'Jemen', 'Sana'],
+                ['jo', 'Jordania', 'Amman'], ['kh', 'Kambodża', 'Phnom Penh'], ['qa', 'Katar', 'Doha'],
+                ['kz', 'Kazachstan', 'Astana'], ['kg', 'Kirgistan', 'Biszkek'], ['kr', 'Korea Południowa', 'Seul'],
+                ['kp', 'Korea Północna', 'Pjongjang'], ['kw', 'Kuwejt', 'Kuwejt'], ['la', 'Laos', 'Wientian'],
+                ['lb', 'Liban', 'Bejrut'], ['mv', 'Malediwy', 'Male'], ['my', 'Malezja', 'Kuala Lumpur'],
+                ['mn', 'Mongolia', 'Ułan Bator'], ['mm', 'Mjanma', 'Naypyidaw'], ['np', 'Nepal', 'Katmandu'],
+                ['om', 'Oman', 'Maskat'], ['pk', 'Pakistan', 'Islamabad'], ['ps', 'Palestyna', null],
+                ['sg', 'Singapur', 'Singapur'], ['lk', 'Sri Lanka', 'Sri Dźajawardanapura Kotte'], ['sy', 'Syria', 'Damaszek'],
+                ['tj', 'Tadżykistan', 'Duszanbe'], ['th', 'Tajlandia', 'Bangkok'], ['tl', 'Timor Wschodni', 'Dili'],
+                ['tr', 'Turcja', 'Ankara'], ['tm', 'Turkmenistan', 'Aszchabad'], ['uz', 'Uzbekistan', 'Taszkent'],
+                ['vn', 'Wietnam', 'Hanoi'], ['ae', 'Zjednoczone Emiraty Arabskie', 'Abu Zabi']
+            ],
+            af: [
+                ['dz', 'Algieria', 'Algier'], ['ao', 'Angola', 'Luanda'], ['bj', 'Benin', 'Porto Novo'],
+                ['bw', 'Botswana', 'Gaborone'], ['bf', 'Burkina Faso', 'Wagadugu'], ['bi', 'Burundi', 'Gitega'],
+                ['td', 'Czad', 'Ndżamena'], ['cd', 'Demokratyczna Republika Konga', 'Kinszasa'], ['dj', 'Dżibuti', 'Dżibuti'],
+                ['eg', 'Egipt', 'Kair'], ['er', 'Erytrea', 'Asmara'], ['sz', 'Eswatini', 'Mbabane'],
+                ['et', 'Etiopia', 'Addis Abeba'], ['ga', 'Gabon', 'Libreville'], ['gm', 'Gambia', 'Bandżul'],
+                ['gh', 'Ghana', 'Akra'], ['gn', 'Gwinea', 'Konakry'], ['gw', 'Gwinea Bissau', 'Bissau'],
+                ['gq', 'Gwinea Równikowa', 'Malabo'], ['cm', 'Kamerun', 'Jaunde'], ['ke', 'Kenia', 'Nairobi'],
+                ['km', 'Komory', 'Moroni'], ['cg', 'Kongo', 'Brazzaville'], ['ls', 'Lesotho', 'Maseru'],
+                ['lr', 'Liberia', 'Monrovia'], ['ly', 'Libia', 'Trypolis'], ['mg', 'Madagaskar', 'Antananarywa'],
+                ['mw', 'Malawi', 'Lilongwe'], ['ml', 'Mali', 'Bamako'], ['ma', 'Maroko', 'Rabat'],
+                ['mr', 'Mauretania', 'Nawakszut'], ['mu', 'Mauritius', 'Port Louis'], ['mz', 'Mozambik', 'Maputo'],
+                ['na', 'Namibia', 'Windhuk'], ['ne', 'Niger', 'Niamey'], ['ng', 'Nigeria', 'Abudża'],
+                ['za', 'Republika Południowej Afryki', 'Pretoria'], ['cf', 'Republika Środkowoafrykańska', 'Bangi'],
+                ['cv', 'Republika Zielonego Przylądka', 'Praia'], ['rw', 'Rwanda', 'Kigali'], ['sn', 'Senegal', 'Dakar'],
+                ['sc', 'Seszele', 'Victoria'], ['sl', 'Sierra Leone', 'Freetown'], ['so', 'Somalia', 'Mogadiszu'],
+                ['sd', 'Sudan', 'Chartum'], ['ss', 'Sudan Południowy', 'Dżuba'], ['tz', 'Tanzania', 'Dodoma'],
+                ['tg', 'Togo', 'Lomé'], ['tn', 'Tunezja', 'Tunis'], ['ug', 'Uganda', 'Kampala'],
+                ['ci', 'Wybrzeże Kości Słoniowej', 'Jamusukro'], ['st', 'Wyspy Świętego Tomasza i Książęca', 'São Tomé'],
+                ['zm', 'Zambia', 'Lusaka'], ['zw', 'Zimbabwe', 'Harare']
+            ],
+            na: [
+                ['ag', 'Antigua i Barbuda', "Saint John's"], ['bs', 'Bahamy', 'Nassau'], ['bb', 'Barbados', 'Bridgetown'],
+                ['bz', 'Belize', 'Belmopan'], ['dm', 'Dominika', 'Roseau'], ['do', 'Dominikana', 'Santo Domingo'],
+                ['gd', 'Grenada', "Saint George's"], ['gt', 'Gwatemala', 'Gwatemala'], ['ht', 'Haiti', 'Port-au-Prince'],
+                ['hn', 'Honduras', 'Tegucigalpa'], ['jm', 'Jamajka', 'Kingston'], ['ca', 'Kanada', 'Ottawa'],
+                ['cr', 'Kostaryka', 'San José'], ['cu', 'Kuba', 'Hawana'], ['mx', 'Meksyk', 'Meksyk'],
+                ['ni', 'Nikaragua', 'Managua'], ['pa', 'Panama', 'Panama'], ['kn', 'Saint Kitts i Nevis', 'Basseterre'],
+                ['lc', 'Saint Lucia', 'Castries'], ['vc', 'Saint Vincent i Grenadyny', 'Kingstown'], ['sv', 'Salwador', 'San Salvador'],
+                ['us', 'Stany Zjednoczone', 'Waszyngton'], ['tt', 'Trynidad i Tobago', 'Port of Spain']
+            ],
+            sa: [
+                ['ar', 'Argentyna', 'Buenos Aires'], ['bo', 'Boliwia', 'Sucre'], ['br', 'Brazylia', 'Brasília'],
+                ['cl', 'Chile', 'Santiago'], ['ec', 'Ekwador', 'Quito'], ['gy', 'Gujana', 'Georgetown'],
+                ['co', 'Kolumbia', 'Bogota'], ['py', 'Paragwaj', 'Asunción'], ['pe', 'Peru', 'Lima'],
+                ['sr', 'Surinam', 'Paramaribo'], ['uy', 'Urugwaj', 'Montevideo'], ['ve', 'Wenezuela', 'Caracas']
+            ],
+            oc: [
+                ['au', 'Australia', 'Canberra'], ['fj', 'Fidżi', 'Suva'], ['ki', 'Kiribati', 'Tarawa'],
+                ['fm', 'Mikronezja', 'Palikir'], ['nr', 'Nauru', 'Yaren'], ['nz', 'Nowa Zelandia', 'Wellington'],
+                ['pw', 'Palau', 'Ngerulmud'], ['pg', 'Papua-Nowa Gwinea', 'Port Moresby'], ['ws', 'Samoa', 'Apia'],
+                ['to', 'Tonga', 'Nukuʻalofa'], ['tv', 'Tuvalu', 'Funafuti'], ['vu', 'Vanuatu', 'Port Vila'],
+                ['mh', 'Wyspy Marshalla', 'Majuro'], ['sb', 'Wyspy Salomona', 'Honiara']
+            ]
+        };
+
+        // Grupy flag, które łatwo pomylić – z nich bierzemy podchwytliwe odpowiedzi.
+        const LOOKALIKES = [
+            ['td', 'ro', 'ad', 'md'], ['id', 'mc', 'pl'], ['ie', 'ci', 'it'], ['nl', 'lu', 'py', 'fr'],
+            ['ru', 'si', 'sk', 'rs', 'hr'], ['au', 'nz', 'tv', 'fj'], ['no', 'is', 'dk', 'fi', 'se'],
+            ['sn', 'ml', 'gn', 'cm'], ['lt', 'bo', 'gh', 'et'], ['be', 'de'], ['hu', 'bg', 'ir', 'tj'],
+            ['at', 'lv', 'lb'], ['pe', 'ca'], ['ar', 'uy', 'sv', 'ni', 'hn', 'gt'], ['co', 'ec', 've'],
+            ['eg', 'sy', 'iq', 'ye'], ['ae', 'kw', 'jo', 'ps', 'sd'], ['qa', 'bh'], ['jp', 'bd', 'pw'],
+            ['tr', 'tn'], ['cn', 'vn'], ['us', 'lr', 'my'], ['ne', 'in'], ['ht', 'li'], ['ss', 'ke'],
+            ['xk', 'ba', 'cy'], ['al', 'me'], ['fm', 'so'], ['cz', 'ph']
+        ];
+
+        const COUNTRIES = Object.entries(DATA).flatMap(([cont, list]) =>
+            list.map(([code, name, capital]) => ({ code, name, capital, cont })));
+        const BY_CODE = Object.fromEntries(COUNTRIES.map(c => [c.code, c]));
+        const SIMILAR = {};
+        LOOKALIKES.forEach(group => group.forEach(code => {
+            SIMILAR[code] = [...new Set([...(SIMILAR[code] || []), ...group.filter(x => x !== code)])];
+        }));
+
+        const flagUrl = (code, width = 640) => `https://flagcdn.com/w${width}/${code}.png`;
+
+        // ---------- TRYBY GRY ----------
+        const QUICK_COUNT = 20;
+        const MODES = [
+            { key: 'world', title: 'Cały świat', icon: 'globe', btn: 'bg-sky-600 hover:bg-sky-700', big: true,
+              pick: () => COUNTRIES },
+            { key: 'quick', title: 'Szybka runda', icon: 'zap', btn: 'bg-violet-500 hover:bg-violet-600', big: true,
+              pick: () => shuffle([...COUNTRIES]).slice(0, QUICK_COUNT), label: `${QUICK_COUNT} losowych flag` },
+            ...Object.entries(CONTINENTS).map(([key, c]) => ({
+                key, title: c.name, icon: 'map', btn: c.btn, pick: () => COUNTRIES.filter(x => x.cont === key)
+            }))
+        ];
+
+        function flagsLabel(n) {
+            const d = n % 10, dd = n % 100;
+            if (n === 1) return '1 flaga';
+            if (d >= 2 && d <= 4 && !(dd >= 12 && dd <= 14)) return `${n} flagi`;
+            return `${n} flag`;
+        }
+
+        function renderModes() {
+            const box = document.getElementById('modes-container');
+            const btn = (m, extra) => `
+                <button onclick="startMode('${m.key}')" class="w-full py-4 px-5 ${m.btn} text-white font-black rounded-2xl shadow-lg transform transition active:scale-95 flex items-center gap-3 ${extra}">
+                    <i data-lucide="${m.icon}" class="w-7 h-7 shrink-0"></i>
+                    <span class="flex-1 text-left leading-tight">${m.title}</span>
+                    <span class="text-sm font-bold bg-white/20 px-3 py-1 rounded-full whitespace-nowrap">${m.label || flagsLabel(m.pick().length)}</span>
+                </button>`;
+            const big = MODES.filter(m => m.big).map(m => btn(m, 'text-2xl py-5')).join('');
+            const small = MODES.filter(m => !m.big).map(m => btn(m, 'text-lg')).join('');
+            box.innerHTML = `${big}
+                <p class="text-slate-500 font-bold mt-3 mb-1">…albo jeden kontynent:</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">${small}</div>`;
+            document.getElementById('total-count').textContent = COUNTRIES.length;
+        }
+
+        // ---------- STAN GRY ----------
+        let questions = [];
+        let currentQIndex = 0;
+        let score = 0;
+        let isAnswered = false;
+        let mistakes = [];          // [{ country, chosen }]
+        let lastRun = null;         // { title, list: () => kraje } – do „Zagraj ponownie”
+
+        const BTN_BASE = "option-btn min-h-[4.5rem] py-3 px-4 text-xl sm:text-2xl font-black rounded-2xl border-4 flex justify-center items-center gap-3 text-center leading-tight ";
+        const BTN_IDLE = BTN_BASE + "border-slate-200 bg-white text-slate-700 hover:border-sky-400 hover:bg-sky-50 hover:shadow-md";
+
+        function shuffle(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        // ---------- GENERATOR PYTAŃ ----------
+        function pickWrongOptions(country) {
+            const chosen = [];
+            const add = list => {
+                for (const c of shuffle([...list])) {
+                    if (chosen.length >= 3) return;
+                    if (c !== country && !chosen.includes(c)) chosen.push(c);
+                }
+            };
+            // 1) maksymalnie 2 podobne flagi, 2) państwa z tego samego kontynentu, 3) dowolne
+            add(shuffle((SIMILAR[country.code] || []).map(code => BY_CODE[code])).slice(0, 2));
+            add(COUNTRIES.filter(c => c.cont === country.cont));
+            add(COUNTRIES);
+            return chosen;
+        }
+
+        const norm = s => s.toLowerCase().replace(/ł/g, 'l').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+        function makeHint(c) {
+            const where = `To państwo leży ${CONTINENTS[c.cont].loc}.`;
+            // Gdy stolica zdradza nazwę państwa (np. Meksyk – Meksyk), podpowiadamy pierwszą literę
+            const capitalGivesAway = c.capital &&
+                (norm(c.capital).includes(norm(c.name).slice(0, 3)) || norm(c.name).includes(norm(c.capital)));
+            if (c.capital && !capitalGivesAway) return `${where} Jego stolica to ${c.capital}.`;
+            return `${where} Jego nazwa zaczyna się na literę „${c.name[0]}”.`;
+        }
+
+        function buildQuestions(countries) {
+            return shuffle([...countries]).map(country => {
+                const options = shuffle([country, ...pickWrongOptions(country)]);
+                return { country, options, correctIndex: options.indexOf(country) };
+            });
+        }
+
+        // ---------- STEROWANIE EKRANAMI ----------
+        function showScreen(screenId) {
+            ['screen-start', 'screen-quiz', 'screen-end'].forEach(id =>
+                document.getElementById(id).classList.toggle('hidden', id !== screenId));
+            document.getElementById('screen-quiz').classList.toggle('flex', screenId === 'screen-quiz');
+            window.scrollTo(0, 0);
+        }
+
+        function startRun(title, list) {
+            lastRun = { title, list };
+            questions = buildQuestions(list());
+            currentQIndex = 0;
+            score = 0;
+            mistakes = [];
+            document.getElementById('mode-badge').textContent = title;
+            document.getElementById('score-live').textContent = 0;
+            document.getElementById('hint-section').classList.remove('hidden');
+            showScreen('screen-quiz');
+            loadQuestion();
+        }
+
+        function startMode(key) {
+            const m = MODES.find(x => x.key === key);
+            startRun(m.title, m.pick);
+        }
+
+        function startRetry() {
+            const list = mistakes.map(x => x.country);
+            startRun('Powtórka błędów', () => list);
+        }
+
+        function replay() { startRun(lastRun.title, lastRun.list); }
+
+        function quitQuiz() {
+            if (currentQIndex > 0 && !confirm('Przerwać quiz? Wynik nie zostanie zapisany.')) return;
+            showScreen('screen-start');
+        }
+
+        function loadQuestion() {
+            isAnswered = false;
+            const q = questions[currentQIndex];
+            const total = questions.length;
+
+            const img = document.getElementById('flag-img');
+            img.classList.add('opacity-0');
+            document.getElementById('flag-error').classList.add('hidden');
+            img.src = flagUrl(q.country.code);
+
+            // Wczytaj z wyprzedzeniem kolejne flagi, żeby nie było czekania
+            questions.slice(currentQIndex + 1, currentQIndex + 3).forEach(n => { new Image().src = flagUrl(n.country.code); });
+
+            document.getElementById('progress-text').textContent = `${currentQIndex + 1} z ${total}`;
+            document.getElementById('progress-bar').style.width = `${((currentQIndex + 1) / total) * 100}%`;
+            document.getElementById('hint-text').textContent = makeHint(q.country);
+
+            document.querySelectorAll('.option-btn').forEach((btn, idx) => {
+                btn.disabled = false;
+                btn.className = BTN_IDLE;
+                document.getElementById(`opt-${idx}`).textContent = q.options[idx].name;
+                const ic = document.getElementById(`icon-opt-${idx}`);
+                ic.innerHTML = '';
+                ic.classList.add('hidden');
+            });
+
+            document.getElementById('verdict-section').classList.add('hidden');
+            document.getElementById('hint-btn').classList.remove('hidden');
+            document.getElementById('hint-text-box').classList.add('hidden');
+            document.getElementById('next-btn-text').textContent = currentQIndex < total - 1 ? 'Następne Pytanie' : 'Zakończ Quiz';
+            lucide.createIcons();
+        }
+
+        function showHint() {
+            document.getElementById('hint-btn').classList.add('hidden');
+            document.getElementById('hint-text-box').classList.remove('hidden');
+        }
+
+        function handleAnswer(index) {
+            if (isAnswered) return;
+            isAnswered = true;
+            const q = questions[currentQIndex];
+            const c = q.country;
+            const ok = index === q.correctIndex;
+            if (ok) score++;
+            else mistakes.push({ country: c, chosen: q.options[index] });
+            document.getElementById('score-live').textContent = score;
+
+            document.querySelectorAll('.option-btn').forEach((btn, idx) => {
+                btn.disabled = true;
+                const ic = document.getElementById(`icon-opt-${idx}`);
+                ic.classList.remove('hidden');
+                if (idx === q.correctIndex) {
+                    btn.className = BTN_BASE + "border-emerald-500 bg-emerald-50 text-emerald-600 scale-105 shadow-lg";
+                    ic.innerHTML = '<i data-lucide="check-circle-2" class="w-7 h-7 text-emerald-500 shrink-0"></i>';
+                } else if (idx === index) {
+                    btn.className = BTN_BASE + "border-rose-400 bg-rose-50 text-rose-600 opacity-50";
+                    ic.innerHTML = '<i data-lucide="x-circle" class="w-7 h-7 text-rose-500 shrink-0"></i>';
+                } else {
+                    btn.className = BTN_BASE + "border-slate-100 bg-slate-50 text-slate-300 opacity-50";
+                }
+            });
+
+            const vb = document.getElementById('verdict-box');
+            const vt = document.getElementById('verdict-title');
+            if (ok) {
+                vb.className = "rounded-2xl p-6 mb-6 border-l-8 shadow-sm bg-emerald-50 border-emerald-500 text-emerald-800";
+                vt.innerHTML = '<i data-lucide="check-circle-2" class="w-6 h-6 shrink-0"></i> Wspaniale! Dokładnie tak!';
+            } else {
+                vb.className = "rounded-2xl p-6 mb-6 border-l-8 shadow-sm bg-rose-50 border-rose-500 text-rose-800";
+                vt.innerHTML = '<i data-lucide="x-circle" class="w-6 h-6 shrink-0"></i> Niestety, to nie to.';
+            }
+            const facts = [CONTINENTS[c.cont].name];
+            if (c.capital) facts.push(`stolica: ${c.capital}`);
+            document.getElementById('verdict-rationale').textContent = `To flaga państwa ${c.name} (${facts.join(', ')}).`;
+
+            const similar = (SIMILAR[c.code] || []).map(code => BY_CODE[code].name);
+            const vs = document.getElementById('verdict-similar');
+            vs.classList.toggle('hidden', similar.length === 0);
+            vs.textContent = `Uwaga, łatwo ją pomylić! Podobne flagi mają: ${similar.join(', ')}.`;
+
+            document.getElementById('verdict-section').classList.remove('hidden');
+            document.getElementById('hint-section').classList.add('hidden');
+            lucide.createIcons();
+        }
+
+        function handleNextQuestion() {
+            if (currentQIndex < questions.length - 1) {
+                currentQIndex++;
+                document.getElementById('hint-section').classList.remove('hidden');
+                loadQuestion();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                finishQuiz();
+            }
+        }
+
+        function finishQuiz() {
+            showScreen('screen-end');
+            const total = questions.length;
+            document.getElementById('final-score').textContent = score;
+            document.getElementById('final-total').textContent = total;
+            document.getElementById('end-mode').textContent = lastRun.title;
+            const pct = Math.round((score / total) * 100);
+            let msg;
+            if (pct === 100) msg = "Genialnie! Rozpoznajesz flagi jak prawdziwy podróżnik!";
+            else if (pct >= 80) msg = "Wspaniały wynik! Znasz flagi naprawdę świetnie.";
+            else if (pct >= 50) msg = "Dobra robota! Powtórz flagi z listy poniżej, a będzie jeszcze lepiej.";
+            else msg = "Trening czyni mistrza. Obejrzyj flagi do powtórki i spróbuj jeszcze raz!";
+            document.getElementById('final-message').textContent = msg;
+
+            const stars = document.getElementById('stars-container');
+            stars.innerHTML = '';
+            for (let i = 0; i < 5; i++) {
+                const gold = i < Math.ceil(pct / 20);
+                stars.innerHTML += `<i data-lucide="star" class="w-10 h-10 ${gold ? 'text-yellow-400 fill-current' : 'text-slate-200'}"></i>`;
+            }
+
+            const hasMistakes = mistakes.length > 0;
+            document.getElementById('mistakes-section').classList.toggle('hidden', !hasMistakes);
+            document.getElementById('retry-btn').classList.toggle('hidden', !hasMistakes);
+            document.getElementById('retry-btn-text').textContent = `Powtórz błędne flagi (${mistakes.length})`;
+            document.getElementById('mistakes-list').innerHTML = mistakes.map(({ country, chosen }) => `
+                <div class="bg-slate-50 rounded-2xl p-3 border-2 border-slate-100 flex flex-col items-center text-center gap-2">
+                    <div class="h-16 flex items-center justify-center">
+                        <img src="${flagUrl(country.code, 160)}" alt="Flaga: ${country.name}" loading="lazy" class="max-h-full max-w-full object-contain rounded shadow-sm ring-1 ring-slate-200">
+                    </div>
+                    <span class="font-black leading-tight">${country.name}</span>
+                    <span class="text-xs font-semibold text-rose-500 leading-tight">Twoja odpowiedź: ${chosen.name}</span>
+                </div>`).join('');
+            lucide.createIcons();
+        }
+
+        // ---------- OBRAZEK FLAGI ----------
+        const flagImg = document.getElementById('flag-img');
+        flagImg.addEventListener('load', () => flagImg.classList.remove('opacity-0'));
+        flagImg.addEventListener('error', () => document.getElementById('flag-error').classList.remove('hidden'));
+
+        // ---------- KLAWIATURA: 1–4 wybiera odpowiedź, Enter/spacja przechodzi dalej ----------
+        document.addEventListener('keydown', e => {
+            if (document.getElementById('screen-quiz').classList.contains('hidden')) return;
+            if (e.target.tagName === 'BUTTON' && (e.key === 'Enter' || e.key === ' ')) return;
+            if (!isAnswered && ['1', '2', '3', '4'].includes(e.key)) handleAnswer(Number(e.key) - 1);
+            else if (isAnswered && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); handleNextQuestion(); }
+        });
+
+        renderModes();
+        lucide.createIcons();
+    </script>
+</body>
+</html>
